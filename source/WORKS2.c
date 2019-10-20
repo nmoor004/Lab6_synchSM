@@ -121,12 +121,6 @@ void Tick_Inc(unsigned char temp_val) {
 			
 			break;
 		case Inc_Gradual:
-			if ((A0 == 0x01) && (A1 == 0x01)) {
-				Inc_State = Inc_Idle;
-				TimerSet(100); //Change the timer back to normal 100ms
-				count = 0;
-			}
-			
 			break;
 
 	}
@@ -163,15 +157,6 @@ void Tick_Inc(unsigned char temp_val) {
 			break;
 		case Inc_Gradual:
 			PORTC = 0x07;
-			TimerSet(1000); //Change timer to 1000 seconds no need to use count wow outplay outplay outplayoutplay out outplay outplay outplay i have aall DA MASTER YI SKINZZZZ ON mmy MAIN ACCOOUNT
-			if ((type == 0) && (PORTB != 0x09)) { //Add
-				sum++;
-				PORTB = sum;
-			}
-			else if ((type == 1) && (PORTB != 0x00)) { //Subtract
-				sum--;
-				PORTB = sum;
-			}
 			break;
 
 	}

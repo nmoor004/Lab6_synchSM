@@ -15,9 +15,7 @@ volatile unsigned char TimerFlag = 0; // TimerISR() sets this to 1. C Programmer
 unsigned long _avr_timer_M = 1;	       // Start count from here, down to 0. Default 1 ms.
 unsigned long _avr_timer_cntcurr = 0; // Current internal count of 1ms ticks
 
-unsigned char count = 0;
-unsigned char type = 0; // 0 = Add, 1 = Subtract
-enum Inc_States { Inc_init, Inc_Idle, Inc_Add, Inc_Subtract, Inc_Reset, Inc_Press, Inc_Gradual} Inc_State;
+enum Inc_States { Inc_init, Inc_Idle, Inc_Add, Inc_Subtract, Inc_Reset} Inc_State;
 
 void TimerOn() {
 	// AVR timer/counter controller register TCCR1
@@ -84,17 +82,14 @@ void Tick_Inc(unsigned char temp_val) {
 			break;
 		
 		case Inc_Idle:
-
 			if ((A0 == 0x00) && (A1 == 0x00)) {
 				Inc_State = Inc_Reset;
 			}
-			else if ((A0 == 0x01) && (A1 == 0x00)) { //Add
-				Inc_State = Inc_Press;
-				type = 0;
+			else if ((A0 == 0x01) && (A1 == 0x00)) {
+				Inc_State = Inc_Add;
 			}
-			else if ((A0 == 0x00) && (A1 == 0x01)) { //Subtract
-				Inc_State = Inc_Press;
-				type = 1;
+			else if ((A0 == 0x00) && (A1 == 0x01)) {
+				Inc_State = Inc_Subtract;
 			}
 			break; 
 
@@ -107,27 +102,6 @@ void Tick_Inc(unsigned char temp_val) {
 			break;
 		case Inc_Reset:
 			Inc_State = Inc_Idle;
-		case Inc_Press:
-			if ((A0 == 0x01) && (A1 == 0x01) && (type == 0)) {
-				Inc_State = Inc_Add;
-			}
-			else if ((A0 == 0x01) && (A1 == 0x01) && (type == 1)) {
-				Inc_State = Inc_Subtract;
-			}
-
-			if (count == 10) {
-				Inc_State = Inc_Gradual;
-			}
-			
-			break;
-		case Inc_Gradual:
-			if ((A0 == 0x01) && (A1 == 0x01)) {
-				Inc_State = Inc_Idle;
-				TimerSet(100); //Change the timer back to normal 100ms
-				count = 0;
-			}
-			
-			break;
 
 	}
 
@@ -135,43 +109,21 @@ void Tick_Inc(unsigned char temp_val) {
 		case Inc_init:
 			break;
 		case Inc_Idle:
-			PORTC = 0x01;
 			break;
 		case Inc_Add:
-			count = 0;
-			PORTC = 0x02;
 			if (PORTB != 0x09) {
 				sum++;
 				PORTB = sum;
 			}
 			break;
 		case Inc_Subtract:
-			count = 0;
-			PORTC = 0x04;
 			if (PORTB != 0x00) {
 				sum--;
 				PORTB = sum;
 			}
 			break;
 		case Inc_Reset:
-			PORTC = 0x07;
 			PORTB = 0x00;
-			break;
-		case Inc_Press:
-			count++;
-			PORTC = 0x08;
-			break;
-		case Inc_Gradual:
-			PORTC = 0x07;
-			TimerSet(1000); //Change timer to 1000 seconds no need to use count wow outplay outplay outplayoutplay out outplay outplay outplay i have aall DA MASTER YI SKINZZZZ ON mmy MAIN ACCOOUNT
-			if ((type == 0) && (PORTB != 0x09)) { //Add
-				sum++;
-				PORTB = sum;
-			}
-			else if ((type == 1) && (PORTB != 0x00)) { //Subtract
-				sum--;
-				PORTB = sum;
-			}
 			break;
 
 	}
